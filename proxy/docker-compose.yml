@@ -10,8 +10,10 @@ services:
       - 80:80
     restart: always
     external_links:
-      - site_a:nginx
-      - site_b:nginx
+      - site_a
+      - site_b
+      - domainnews_app
+      - woofly_app
     networks:
       - nginx-proxy
 
