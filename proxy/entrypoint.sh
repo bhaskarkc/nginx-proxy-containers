@@ -13,18 +13,17 @@ build_server_directives() {
     fi
 
     # install jq
-    apk --update add jq curl;
+    apk --update add jq;
 
     jq -r '.[] | keys[]' < ./servers.json | while read server_container;
     do
-        # printf "Checking if container %s is reachable...%b" "$server_container" "\n"
-        # ping -c 1 "$server_container" &> /dev/null
 
-        http_resp=$(curl -s -o /dev/null -w "%{http_code}" "$server_container:3000" --connect-timeout 1)
-
-        # if curl cannot connect then returns "000".
-        if [[ "$http_resp" -eq "000" ]]; then 
-            echo "Container $server_container is not available, skipping..."
+        # Host availability check.
+        if ping -c 1 "$server_container" &> /dev/null
+        then
+            echo "$server_container} is available, adding config for this host..."
+        else
+            echo "{$server_container} is noth available, skipping this host..."
             continue
         fi
 
