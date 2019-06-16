@@ -4,6 +4,22 @@ This is a simple nginx proxy server setup to map web apps running independently 
 
 ![Image](proxy/nginx-proxy-containers.png  "Figure: Nginx Proxy server workflow.")
 
+To setup the proxy server for you local apps just update `proxy/servers.json` file with respective settings.
+
+```config
+[
+    {
+        "site_a": {
+            "server_name":"my-site-a",
+            "location":"/"
+        },
+        "site_b": {
+            "server_name":"my-site-b",
+            "location":"/"
+        }
+    }
+]```
+
 For instance, if we are running more than one web apps on docker containers then obviously, we will not be able to expose same external port for the app.
 
 ```config
@@ -14,7 +30,7 @@ for example:
 
 By using, nginx proxy server we can request respective servers irrespective to the exposed port to host.
 
-### Network
+### Docker Network
 
 Docker containers need to be in same network in order to identify each other. Therefore, we will have to create a bridge network and assign that network to every docker container we wish to put in the proxy network.
 
@@ -35,6 +51,35 @@ services:
 networks:
   nginx-proxy:
     name: nginx-proxy
+```
+
+### Test
+
+Add hostnames entries in your host machine's `/etc/hosts` file.
+```
+127.0.0.1 my-site-a
+127.0.0.1 my-site-b
+```
+
+This repo consists of a working proxy server and sample web app `site_a` and `site_b`.
+
+Steps:
+
+1. `docker-compose -f site-A/docker-compose.yml up --build -d` : Spin up `site_a` container.
+2. `docker-compose -f site-B/docker-compose.yml up --build -d` : Spin up `site_b` container.
+3. `docker-compose -f proxy/docker-compose.yml up --build -d` : Spins up the `the_proxy` container.
+
+
+Curl request from host machine would look like below.
+
+```config
+➜ curl -I my-site-a
+HTTP/1.1 200 OK
+Server: nginx/1.15.8
+Date: Sun, 27 Jan 2019 12:01:02 GMT
+Content-Type: text/plain
+Content-Length: 18
+Connection: keep-alive
 ```
 
 ### NGINX config
@@ -82,31 +127,4 @@ server {
 }
 ```
 
-### Test
 
-Add hostnames entries in your host machine's `/etc/hosts` file.
-```
-127.0.0.1 my-site-a
-127.0.0.1 my-site-b
-```
-
-This repo consists of a working proxy server and sample web app `site_a` and `site_b`.
-
-Steps:
-
-1. `docker-compose -f site-A/docker-compose.yml up --build -d` : Spin up `site_a` container.
-2. `docker-compose -f site-B/docker-compose.yml up --build -d` : Spin up `site_b` container.
-3. `docker-compose -f proxy/docker-compose.yml up --build -d` : Spins up the `the_proxy` container.
-
-
-Curl request from host machine would look like below.
-
-```config
-➜ curl -I my-site-a
-HTTP/1.1 200 OK
-Server: nginx/1.15.8
-Date: Sun, 27 Jan 2019 12:01:02 GMT
-Content-Type: text/plain
-Content-Length: 18
-Connection: keep-alive
-```

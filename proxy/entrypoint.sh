@@ -8,12 +8,12 @@ update_nginx_wrkr_ps() {
 
 build_server_directives() {
     if ! [[ -f ./servers.json ]]; then
-        echo "Servers are not defined skipping custom server config..."
-        return;
+        echo "Proxy servers settings not found. Aboting!"
+        exit 1;
     fi
 
     # install jq
-    apk --update --no-cache add jq curl;
+    apk --update add jq curl;
 
     jq -r '.[] | keys[]' < ./servers.json | while read server_container;
     do
@@ -28,13 +28,14 @@ build_server_directives() {
             continue
         fi
 
-
         server_name=$(jq -r ".[].$server_container | .server_name" < ./servers.json )
+        app_port=$(jq -r ".[].$server_container | select(.app_port !=null) | .app_port" < ./servers.json )
+        proxy_port=$(jq -r ".[].$server_container | select(.proxy_port !=null) | .proxy_port" < ./servers.json )
         proxy_url="http://$server_container"
 
         server=$(
             printf '
-            upstream %s { server %s:3000; }
+            upstream %s { server %s:%d; }
             server {
                 listen %d;
                 server_name %s;
@@ -42,7 +43,7 @@ build_server_directives() {
                     proxy_pass %s;
                     proxy_redirect off;
                 }
-            }' "$server_container" "$server_container" 80 "$server_name" "$proxy_url"
+            }' "$server_container" "$server_container" "${app_port:-80}" "${proxy_port:-80}" "$server_name" "$proxy_url"
         );
 
         echo "$server" > /etc/nginx/conf.d/"$server_container".conf
@@ -53,6 +54,7 @@ build_server_directives() {
 
 build_server_directives
 
+# Start nginx.
 nginx -g "daemon off;"
 exec "$@"
 exit 0

@@ -2,11 +2,13 @@
     {
         "site_a": {
             "server_name":"my-site-a",
-            "location":"/"
+            "location":"/",
+            "app_port": 3000,
+            "proxy_port": 80
         },
         "site_b": {
             "server_name":"my-site-b",
-            "location":"/"
+            "location":"/
         }
     }
 ]
