@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
 
-
 update_nginx_wrkr_ps() {
     # Tweak nginx to match the workers of cpu's
     procs=$(cat /proc/cpuinfo | grep -c processor )
@@ -14,14 +13,17 @@ build_server_directives() {
     fi
 
     # install jq
-    apk --update --no-cache add jq &&
- 
+    apk --update --no-cache add jq curl;
+
     jq -r '.[] | keys[]' < ./servers.json | while read server_container;
     do
-        printf "Checking if container %s is reachable...%b" "$server_container" "\n"
-        ping -c 1 "$server_container" &> /dev/null
+        # printf "Checking if container %s is reachable...%b" "$server_container" "\n"
+        # ping -c 1 "$server_container" &> /dev/null
 
-        if [[ "$?" -gt 0 ]]; then 
+        http_resp=$(curl -s -o /dev/null -w "%{http_code}" "$server_container:3000" --connect-timeout 1)
+
+        # if curl cannot connect then returns "000".
+        if [[ "$http_resp" -eq "000" ]]; then 
             echo "Container $server_container is not available, skipping..."
             continue
         fi
@@ -32,7 +34,7 @@ build_server_directives() {
 
         server=$(
             printf '
-            upstream %s { server %s; }
+            upstream %s { server %s:3000; }
             server {
                 listen %d;
                 server_name %s;
