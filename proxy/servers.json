@@ -1,9 +1,5 @@
 [
     {
-        "domainnews_app": {
-            "server_name":"local.domain.com.au",
-            "location":"/"
-        },
         "site_a": {
             "server_name":"my-site-a",
             "location":"/"
@@ -11,6 +7,6 @@
         "site_b": {
             "server_name":"my-site-b",
             "location":"/"
-        } 
+        }
     }
 ]
