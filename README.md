@@ -18,7 +18,8 @@ To setup the proxy server for you local apps just update `proxy/servers.json` fi
             "location":"/"
         }
     }
-]```
+]
+```
 
 For instance, if we are running more than one web apps on docker containers then obviously, we will not be able to expose same external port for the app.
 
