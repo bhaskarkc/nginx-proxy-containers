@@ -1,14 +1,26 @@
 [
-    {
-        "site_a": {
-            "server_name":"my-site-a",
-            "location":"/",
-            "app_port": 3000,
-            "proxy_port": 80
-        },
-        "site_b": {
-            "server_name":"my-site-b",
-            "location":"/
-        }
+  {
+    "domainnews_app": {
+      "server_name": "local.domain.com.au",
+      "location": "/",
+      "app_port": 3000,
+      "proxy_port": 8001
+    },
+    "crenews_reskin_app": {
+      "server_name": "local.cre-news-reskin.com.au",
+      "location": "/",
+      "app_port": 3000,
+      "proxy_port": 80
+    },
+    "site_a": {
+      "server_name": "my-site-a",
+      "location": "/",
+      "app_port": 3000,
+      "proxy_port": 80
+    },
+    "site_b": {
+      "server_name": "my-site-b",
+      "location": "/"
     }
+  }
 ]
